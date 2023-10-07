@@ -68,9 +68,40 @@ class HTTPClient(object):
         return buffer.decode('utf-8')
 
     def GET(self, url, args=None):
-        code = 500
-        body = ""
-        return HTTPResponse(code, body)
+        try:
+            # parse the URL to get all its parts
+            parsed_url = urllib.parse.urlparse(url)
+
+            # get the host, port and path from the parsed url
+            host = parsed_url.hostname
+            port = parsed_url.port
+            path = parsed_url.path
+
+            if not port: # if no port is given use the default of 80
+                port = 80
+            if not path: # change an empty path to '/'
+                path = '/'
+
+            # establish connection
+            self.connect(host, port)
+
+            # format the GET request and send it
+            request = f"GET {path} HTTP/1.1\r\nHost: {host}\r\n\r\n"
+            self.sendall(request)
+
+            # recieve the response and close connection
+            response = self.recvall(self.socket)
+        except:
+            print("Some Error Occured")
+            sys.exit(1)
+        finally:
+            self.close()
+
+            # return the response
+            print("RESPONSE: ", response)
+            code = 500
+            body = ""
+            return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
         code = 500
