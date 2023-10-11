@@ -41,13 +41,55 @@ class HTTPClient(object):
         return None
 
     def get_code(self, data):
-        return None
+        '''
+        data - composed of headers and body. body is separated from headers by
+        two newline characters, as demonstrated by the professor in eClass discussion forums (and notes).
+        https://eclass.srv.ualberta.ca/mod/forum/discuss.php?d=2340554
+        '''
+        split_data = data.split("\n\n")
+        #print("Data:", data)
+
+        headers_all = split_data[0]
+
+        headers_each = headers_all.split("\n")
+        status = headers_each[0]
+        status_code = int(status.split(" ")[1]) # split into ["HTTP/1.1", code #, response]
+
+
+        return status_code
 
     def get_headers(self,data):
-        return None
+        '''
+        data - composed of headers and body. body is separated from headers by
+        two newline characters, as demonstrated by the professor in eClass discussion forums (and notes).
+        https://eclass.srv.ualberta.ca/mod/forum/discuss.php?d=2340554
+        '''
+        header_content = {}
+
+        split_data = data.split("\n\n")
+
+        headers_all = split_data[0]
+        headers = headers_all.split("\n")
+
+        for each in headers:
+            value = each.split(": ") # split between headers and the data, this should allow 'date' to be store properly
+            header_content[each] = value
+
+        return header_content
 
     def get_body(self, data):
-        return None
+        '''
+        data - composed of headers and body. body is separated from headers by
+        two newline characters, as demonstrated by the professor in eClass discussion forums (and notes).
+        https://eclass.srv.ualberta.ca/mod/forum/discuss.php?d=2340554
+        '''
+    
+        split_data = data.split("\n\n")
+
+        if len(split_data) > 1:
+            return split_data[1]
+        else:
+            return None
     
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
@@ -70,11 +112,18 @@ class HTTPClient(object):
     def GET(self, url, args=None):
         code = 500
         body = ""
+        print(self.get_code)
+        parse_url = urllib.parse.urlparse(url)
+        
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
         code = 500
         body = ""
+
+        parse_url = urllib.parse.urlparse(url)
+
+
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
